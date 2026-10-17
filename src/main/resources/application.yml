@@ -1,0 +1,24 @@
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASS:admin123}
+
+app:
+  rabbit:
+    exchanges:
+      pedidos-topic: pedidos.topic.exchange
+      inventario-direct: inventario.direct.exchange
+      dlx: pedidos.dlx.exchange
+    queues:
+      notificaciones: notificaciones.queue
+      tickets: tickets.queue
+      inventario: inventario.queue
+    dlqs:
+      notificaciones: notificaciones.dlq
+      tickets: tickets.dlq
+      inventario: inventario.dlq
+    routing-keys:
+      pedido-creado: pedido.creado
+      inventario-actualizar: inventario.actualizar

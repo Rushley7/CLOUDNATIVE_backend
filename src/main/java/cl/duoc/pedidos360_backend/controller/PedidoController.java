@@ -1,5 +1,6 @@
 package cl.duoc.pedidos360_backend.controller;
 
+import cl.duoc.pedidos360_backend.messaging.producer.PedidoEventPublisher;
 import cl.duoc.pedidos360_backend.model.Pedido;
 import cl.duoc.pedidos360_backend.repository.PedidoRepository;
 import org.springframework.http.HttpStatus;
@@ -17,9 +18,11 @@ import java.util.List;
 public class PedidoController {
 
     private final PedidoRepository pedidoRepository;
+    private final PedidoEventPublisher eventPublisher;
 
-    public PedidoController(PedidoRepository pedidoRepository) {
+    public PedidoController(PedidoRepository pedidoRepository, PedidoEventPublisher eventPublisher) {
         this.pedidoRepository = pedidoRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @GetMapping
@@ -33,6 +36,8 @@ public class PedidoController {
         pedido.setId(null);
         pedido.setEstado(null);
         pedido.setFechaCreacion(null);
-        return pedidoRepository.save(pedido);
+        Pedido guardado = pedidoRepository.save(pedido);
+        eventPublisher.publicarPedidoCreado(guardado);
+        return guardado;
     }
 }
