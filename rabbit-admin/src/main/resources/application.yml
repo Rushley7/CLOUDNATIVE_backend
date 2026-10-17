@@ -8,3 +8,7 @@ spring:
     port: 5672
     username: ${RABBITMQ_USER:admin}
     password: ${RABBITMQ_PASS:admin123}
+app:
+  security:
+    issuer-uri: https://login.microsoftonline.com/391cd481-8860-4baf-b334-f1720e604b50/v2.0
+    audiences: api://f6c6a292-0ca4-48c1-aff9-133d0f76a624,f6c6a292-0ca4-48c1-aff9-133d0f76a624
