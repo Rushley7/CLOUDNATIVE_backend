@@ -1,0 +1,22 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: inventario
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASS:admin123}
+    listener:
+      simple:
+        acknowledge-mode: manual
+        default-requeue-rejected: false
+        prefetch: 1
+app:
+  rabbit:
+    exchange: inventario.direct.exchange
+    dlx: pedidos.dlx.exchange
+    queue: inventario.queue
+    dlq: inventario.dlq
+    routing-key: inventario.actualizar
