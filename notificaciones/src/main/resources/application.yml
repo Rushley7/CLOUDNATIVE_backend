@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: notificaciones
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASS:admin123}
+    listener:
+      simple:
+        acknowledge-mode: manual
+        default-requeue-rejected: false
+        prefetch: 1
+
+# Nombres centralizados (deben coincidir con los del servicio pedidos)
+app:
+  rabbit:
+    exchange: pedidos.topic.exchange
+    dlx: pedidos.dlx.exchange
+    queue: notificaciones.queue
+    dlq: notificaciones.dlq
+    routing-key: pedido.creado
