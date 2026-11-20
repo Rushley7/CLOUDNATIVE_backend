@@ -2,6 +2,18 @@ server:
   port: 8081
 
 spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: notificaciones-alertas-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        "[spring.deserializer.value.delegate.class]": org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        "[spring.json.value.default.type]": cl.duoc.notificaciones.messaging.event.AlertaPedidoEvent
+        "[spring.json.use.type.headers]": false
+        "[spring.json.trusted.packages]": "*"
   application:
     name: notificaciones
   rabbitmq:
