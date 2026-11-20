@@ -18,7 +18,8 @@ public class KafkaErrorConfig {
     public DefaultErrorHandler kafkaErrorHandler() {
         DefaultErrorHandler handler = new DefaultErrorHandler(
                 (record, ex) -> log.error("Kafka: mensaje descartado topic={} particion={} offset={}: {}",
-                        record.topic(), record.partition(), record.offset(), ex.getMessage()),
+                        record.topic(), record.partition(), record.offset(),
+                        ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
                 new FixedBackOff(1000L, 2L));
         handler.addNotRetryableExceptions(EventoInvalidoException.class);
         return handler;
