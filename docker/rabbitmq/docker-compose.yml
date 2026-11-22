@@ -1,0 +1,51 @@
+services:
+  rabbit1:
+    image: rabbitmq:3.13-management
+    container_name: rabbit1
+    hostname: rabbit1
+    environment:
+      RABBITMQ_ERLANG_COOKIE: pedidos360-cookie
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-admin123}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbit1_data:/var/lib/rabbitmq
+    networks:
+      - rabbitnet
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  rabbit2:
+    image: rabbitmq:3.13-management
+    container_name: rabbit2
+    hostname: rabbit2
+    user: rabbitmq
+    depends_on:
+      rabbit1:
+        condition: service_healthy
+    environment:
+      RABBITMQ_ERLANG_COOKIE: pedidos360-cookie
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-admin123}
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbit2_data:/var/lib/rabbitmq
+      - ./join-cluster.sh:/join-cluster.sh:ro
+    networks:
+      - rabbitnet
+    entrypoint: ["/bin/bash", "/join-cluster.sh"]
+
+volumes:
+  rabbit1_data:
+  rabbit2_data:
+
+networks:
+  rabbitnet:
+    driver: bridge
