@@ -1,17 +1,18 @@
-Frontend (Angular + MSAL) -> API Gateway (JWT) -> backend (8080)
-|
-+---------------------------+---------------------------+
-v v
-RabbitMQ Kafka
-pedidos.topic.exchange -> notificaciones.queue, tickets.queue topic pedidos-creados (3 part.)
-inventario.direct.exchange -> inventario.queue |
-(DLQ por cada cola) analitica (analitica-group)
-| alerta si total >= 500000
-v
-topic pedidos-alertas
-|
-notificaciones (notificaciones-alertas-group)
+## Arquitectura
 
+```mermaid
+flowchart TD
+    FE[Frontend Angular + MSAL] --> GW[API Gateway con JWT]
+    GW --> BE[backend :8080]
+    BE --> RMQ[RabbitMQ]
+    BE --> K1[(Kafka: pedidos-creados)]
+    RMQ --> N1[notificaciones.queue]
+    RMQ --> T1[tickets.queue]
+    RMQ --> I1[inventario.queue]
+    K1 --> AN[analitica - analitica-group]
+    AN -->|total mayor o igual a 500000| K2[(Kafka: pedidos-alertas)]
+    K2 --> NO[notificaciones - notificaciones-alertas-group]
+```
 
 Al crear un pedido, el backend lo guarda y publica el evento en RabbitMQ y en Kafka. Si falla Kafka, solo se registra en el log y el pedido no se pierde.
 
@@ -77,7 +78,7 @@ Errores: 400 dato invalido, 404 no existe, 409 ya existe, 503 Kafka no disponibl
 | docker/kafka-ui | Kafka UI (usa la red `kafka-net`) | 8090 |
 | docker/rabbitmq | Cluster RabbitMQ de 2 nodos con politica ha-all | 5672/15672 y 5673/15673 |
 
-Kafka UI usa el 8090 para no chocar con el backend (8080). Las credenciales de RabbitMQ se pueden cambiar con `RABBITMQ_USER` y `RABBITMQ_PASS`.
+Kafka UI usa el 8090 para no chocar con el backend (8080). El broker tiene `restart: on-failure`: si arranca antes de que Zookeeper libere la sesion anterior, Docker lo reinicia solo hasta que se conecta. Las credenciales de RabbitMQ se pueden cambiar con `RABBITMQ_USER` y `RABBITMQ_PASS`.
 
 ## Como levantar
 
@@ -86,7 +87,7 @@ Kafka (PowerShell, en este orden porque Kafka UI usa la red que crea el primer c
 ```powershell
 cd docker\kafka
 docker compose up -d
-Start-Sleep -Seconds 30
+Start-Sleep -Seconds 20
 cd ..\kafka-ui
 docker compose up -d
 ```
